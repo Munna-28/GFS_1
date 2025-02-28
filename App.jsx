@@ -6,15 +6,17 @@ import CdrEditor from "./components/CdrEditor";
 import ColorReplacer from "./components/ColorReplacer";
 import TextReplacer from "./components/TextReplacer";
 import ShapeMover from "./components/ShapeMover";
+import LogoReplacement from "./components/LogoReplacement";
 import "./App.css";
 
 const App = () => {
-  const [pdfUrl, setPdfUrl] = useState(""); // Store PDF file URL
+  const [pdfUrl, setPdfUrl] = useState("./main.pdf"); // Store PDF file URL
   const [filePath, setFilePath] = useState("F:\\web\\corel-frontend\\public\\main.cdr");
   const [selectedCoords, setSelectedCoords] = useState(null);
   const [responseMessage, setResponseMessage] = useState("");
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
   const[parameters,setParameters]=useState({Shapename:"" ,Shapetype:"",X:null,Y:null,Shapewidth:null,Shapeheight:null,ShapeText:"",R:null,G:null,B:null});
+  const [showTextEdit, setShowTextEdit] = useState(false);
   // Fetch the PDF file from backend
   const handleConvert = async () => {
     setResponseMessage("Converting to PDF...");
@@ -69,35 +71,56 @@ const App = () => {
   };
 
   return (
-    <div>
-      <h2>Convert & Click Inside PDF</h2>
+    <div className="container">
+      <h2> Cdr Editor</h2>
+      <div className="Input">
       <input
         type="text"
         placeholder="Enter CDR File Path"
         value={filePath}
         onChange={(e) => setFilePath(e.target.value)}
-        className="border p-2 w-full mb-4"
       />
-      <button onClick={handleConvert}>Convert CDR to PDF</button>
-
-      {pdfUrl && <PdfViewer pdfUrl={pdfUrl} onShapeClick={handleShapeClick}  cdrwidth={(dimensions.width)}
-          cdrheight={(dimensions.height)} />}
-        <ShapeMover filePath={filePath} selectedCoords={selectedCoords} handleConvert={handleConvert} />
-        {responseMessage && (
-  <p className="absolute top-4 right-4 bg-gray-800 text-white px-4 py-2 rounded-lg shadow-lg">
-    {responseMessage}
-  </p>
-)}
-      {selectedCoords && <p>Clicked  at: X={selectedCoords.x}, Y={selectedCoords.y}</p>}
-      <TextReplacer filePath={filePath} selectedCoords={selectedCoords} handleConvert={handleConvert} parameters={parameters} />
-
-      <ColorReplacer filePath={filePath} selectedCoords={selectedCoords} handleConvert={handleConvert} />
-      <CdrEditor filePath={filePath}  handleConvert={handleConvert} selectedCoords={selectedCoords} parameters={parameters}/>
-
-
-      <p>x={parameters.X} type={parameters.Shapetype} height={parameters.Shapeheight}</p>
+      <button onClick={handleConvert}>Preview</button>
+      </div>
+  
+      <div className="main-content">
+        {/* Left-side tools */}
+        <div className="left-tools">
+          <div className="text-edit">
+            <TextReplacer filePath={filePath} selectedCoords={selectedCoords} handleConvert={handleConvert} parameters={parameters} />
+          </div>
+          <div className="color-edit">
+            <ColorReplacer filePath={filePath} selectedCoords={selectedCoords} handleConvert={handleConvert} />
+          </div>
+          <div className="shape-move">
+            <ShapeMover filePath={filePath} selectedCoords={selectedCoords} handleConvert={handleConvert} />
+          </div>
+          <div>
+          <LogoReplacement filePath={filePath} handleConvert={handleConvert} selectedCoords={selectedCoords} />
+          </div>
+        </div>
+  
+        {/* Center PDF Viewer */}
+        {pdfUrl && (
+          <div className="pdf-container">
+            <PdfViewer pdfUrl={pdfUrl} onShapeClick={handleShapeClick} cdrwidth={dimensions.width} cdrheight={dimensions.height} />
+          </div>
+        )}
+  
+        {/* Right-side messages */}
+        <div className="right-tools">
+          {responseMessage && <p className="response-message"> {responseMessage} </p>}
+          {selectedCoords && <p className="shape-coordinates">Clicked at: X={selectedCoords.x}, Y={selectedCoords.y}</p>}
+          <div className="cdr-editor">
+            <CdrEditor filePath={filePath} handleConvert={handleConvert} selectedCoords={selectedCoords} parameters={parameters}/>
+          </div>
+        </div>
+      </div>
+  
+      {/* <p>x={parameters.X} type={parameters.Shapetype} height={parameters.Shapeheight}</p> */}
     </div>
   );
+  
 };
 
 export default App;
