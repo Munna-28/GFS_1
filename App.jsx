@@ -7,12 +7,14 @@ import ColorReplacer from "./components/ColorReplacer";
 import TextReplacer from "./components/TextReplacer";
 import ShapeMover from "./components/ShapeMover";
 import LogoReplacement from "./components/LogoReplacement";
+import DeleteShapes from "./components/DeleteShapes"; 
 import "./App.css";
 
 const App = () => {
   const [pdfUrl, setPdfUrl] = useState("./main.pdf"); // Store PDF file URL
   const [filePath, setFilePath] = useState("F:\\web\\corel-frontend\\public\\main.cdr");
   const [selectedCoords, setSelectedCoords] = useState(null);
+  const [selectionBox, setSelectionBox] = useState(null);
   const [responseMessage, setResponseMessage] = useState("");
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
   const [parameters, setParameters] = useState({
@@ -74,6 +76,26 @@ const App = () => {
       setResponseMessage("Error finding shape. Please try again.");
     }
   };
+  const handleSelectionBoxDraw = async (box) => {
+    setSelectionBox(box);
+    console.log(box);
+
+    // try {
+    //   const response = await axios.post("https://localhost:7134/api/corel/get-shapes-in-box", {
+    //     filePath,
+    //     x: box.x,
+    //     y: box.y,
+    //     width: box.width,
+    //     height: box.height,
+    //   });
+
+    //   setResponseMessage(`Shapes found: ${JSON.stringify(response.data)}`);
+    // } catch (error) {
+    //   console.error("Error finding shapes in box:", error);
+    //   setResponseMessage("Error finding shapes in selection box. Please try again.");
+    // }
+  };
+
 
   return (
     <div className="container">
@@ -100,7 +122,7 @@ const App = () => {
         {/* Center PDF Viewer */}
         {pdfUrl && (
           <div className="pdf-container">
-            <PdfViewer pdfUrl={pdfUrl} onShapeClick={handleShapeClick} cdrwidth={dimensions.width} cdrheight={dimensions.height} />
+            <PdfViewer pdfUrl={pdfUrl} onShapeClick={handleShapeClick} onSelectionBoxDraw={handleSelectionBoxDraw}    cdrwidth={dimensions.width} cdrheight={dimensions.height} />
           </div>
         )}
 
@@ -121,10 +143,10 @@ const App = () => {
           {responseMessage && <p className="response-message">{responseMessage}</p>}
           {selectedCoords && <p className="shape-coordinates">Clicked at: X={selectedCoords.x}, Y={selectedCoords.y}</p>}
           
+          <DeleteShapes filePath={filePath} handleConvert={handleConvert} selectionBox={selectionBox} />
           <div className="cdr-editor">
             <CdrEditor filePath={filePath} handleConvert={handleConvert} selectedCoords={selectedCoords} parameters={parameters} />
           </div>
-
  
         </div>
       </div>
